@@ -35,3 +35,9 @@ This attempts to whitelist the given user. This will not work if the user is ban
 
 Example:
 - `!whitelist Notch`
+
+
+# Todo
+- Add a delay before checking if the user was whitelisted
+- Make whitelisting case insensitive
+- Add a server status command
