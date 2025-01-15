@@ -6,6 +6,7 @@ import re
 import requests
 import base64
 import json
+import time
 
 BOT_TOKEN = "DISCORD BOT TOKEN HERE"
 CHANNEL_ID = 12345 # Channel ID for reading messages to be sent to the Minecraft server.
@@ -112,6 +113,7 @@ async def execute_mc_command(ctx, *, username: str):
         await ctx.send(f"Whitelisting user: `{username}`")
 
         # Check if user was succesfully whitelisted.
+        time.sleep(1)
         with open("whitelist.json", 'r') as whitelist:
             if username.lower() in whitelist.read().lower():
                 await ctx.send(f"Succesfully whitelisted `{username}`")
