@@ -43,3 +43,4 @@ Example:
 - Add a server status command
 - Achievement alerts
 - Alerts for when a user joins/leaves
+- Add message filtering for Discord messages (specifically to prevent @everyone 💀)
