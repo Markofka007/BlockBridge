@@ -40,15 +40,23 @@ def read_minecraft_output():
         if line:
             print(f"Minecraft: {line.strip()}")
             if channel and "[Server thread/INFO]" in line: # Check for Minecraft system message.
-                mc_message = re.search(r"\[.+\] \[.+\]: <(.+)> (.*)$", line) # Check if the system message is a player message.
+                mc_message = re.search(r"\[.+\] \[Server thread/INFO\]: <(.+)> (.*)$", line) # Check for player message.
+                mc_join = re.search(r"\[.+\] \[Server thread/INFO\]: (\w+) joined the game$", line) # Check for join message.
+                mc_leave = re.search(r"\[.+\] \[Server thread/INFO\]: (\w+) left the game$", line) # Check for leave message.
+                mc_advancement = re.search(r"\[.+\] \[Server thread/INFO\]: (\w+) has made the advancement \[(.+)\]$", line) # Check for advancement message.
+
                 if mc_message:
                     sender = mc_message.group(1)
                     msg_content = mc_message.group(2)
 
+                    # Temporary solution for preventing the ability to @everyone using the webhook
+                    while "@everyone" in msg_content:
+                        msg_content.replace("@everyone", " ")
+
                     # Get the sender's head (for discord avater)
                     skin_url = f"https://www.mc-heads.net/head/{sender}"
                     if not skin_url:
-                        print(f"Could not find skin for {sender}. Using default avatar.")
+                        print(f"Error fetching skin for {sender}. Using default avatar.")
                         skin_url = None
 
                     payload = {
@@ -62,6 +70,14 @@ def read_minecraft_output():
                     if response.status_code != 204:
                         print(f"Failed to send webhook: {response.status_code}, {response.text}")
 
+                elif mc_join:
+                    bot.loop.create_task(channel.send(f"**{mc_join.group(1)}** joined the server!"))
+
+                elif mc_leave:
+                    bot.loop.create_task(channel.send(f"**{mc_leave.group(1)}** left the server!"))
+
+                elif mc_advancement:
+                    bot.loop.create_task(channel.send(f"**{mc_advancement.group(1)}** just got the achievement **{mc_advancement.group(2)}**!"))
 
 @bot.event
 async def on_ready():
@@ -78,14 +94,14 @@ async def execute_mc_command(ctx, *, username: str):
     if ctx.channel.id == WHITELIST_CHANNEL_ID:
         # Check if user is already whitelisted.
         with open("whitelist.json", 'r') as whitelist:
-            if username in whitelist.read():
+            if username.lower() in whitelist.read().lower():
                 await ctx.send(f"{username} is already whitelisted!")
                 return
             whitelist.close()
 
         # Check is user is banned.
         with open("banned-players.json", 'r') as banlist:
-            if username in banlist.read():
+            if username.lower() in banlist.read().lower():
                 await ctx.send(f"{username} is banned!")
                 return
             banlist.close()
@@ -97,10 +113,10 @@ async def execute_mc_command(ctx, *, username: str):
 
         # Check if user was succesfully whitelisted.
         with open("whitelist.json", 'r') as whitelist:
-            if username in whitelist.read():
-                await ctx.send(f"Succesfully whitelisted {username}")
+            if username.lower() in whitelist.read().lower():
+                await ctx.send(f"Succesfully whitelisted `{username}`")
             else:
-                await ctx.send(f"{username} does not exist :(")
+                await ctx.send(f"`{username}` does not exist :(")
             whitelist.close()
     else:
         await ctx.send("This command can only be used in a designated whitelisting channel.")
