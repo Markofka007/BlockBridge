@@ -41,3 +41,5 @@ Example:
 - Add a delay before checking if the user was whitelisted
 - Make whitelisting case insensitive
 - Add a server status command
+- Achievement alerts
+- Alerts for when a user joins/leaves
