@@ -41,3 +41,4 @@ Example:
 
 # Todo
 - Add a server status command
+- Add a command to see who is online
