@@ -4,6 +4,8 @@ Current features include:
 - Chat bridging
 - Command execution
 - Self-served whitelisting
+- Player join/leave announcements
+- Player achievement announcements 
 
 # Install and Setup
 1. Download `server.py` and place it in your Minecraft server's directory. This is the directory with files like `server.jar`, `whitelist.json`, and `banned-players.json`.
@@ -38,9 +40,4 @@ Example:
 
 
 # Todo
-- Add a delay before checking if the user was whitelisted
-- Make whitelisting case insensitive
 - Add a server status command
-- Achievement alerts
-- Alerts for when a user joins/leaves
-- Add message filtering for Discord messages (specifically to prevent @everyone 💀)
