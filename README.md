@@ -5,7 +5,8 @@ Current features include:
 - Command execution
 - Self-served whitelisting
 - Player join/leave announcements
-- Player achievement announcements 
+- Player achievement announcements
+- Command to see who's online
 
 # Install and Setup
 1. Download `server.py` and place it in your Minecraft server's directory. This is the directory with files like `server.jar`, `whitelist.json`, and `banned-players.json`.
@@ -39,6 +40,8 @@ Example:
 - `!whitelist Notch`
 
 
+## Online
+Type `!online` into the bridged text channel in Discord to see who is online.
+
 # Todo
 - Add a server status command
-- Add a command to see who is online
