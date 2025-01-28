@@ -15,7 +15,6 @@ WHITELIST_CHANNEL_ID = 1245 # Channel ID where users can whitelist themselves or
 WEBHOOK_URL = "DISCORD WEBHOOK URL FOR MINECRAFT MESSAGES"
 MC_SERVER_PARAMS = ["java.exe", "-Xmx2G", "-Xms2G", "-jar", "server.jar", "nogui"] # Arguments for launching the server.jar file
 
-
 # Initialize the Discord bot.
 intents = discord.Intents.default()
 intents.message_content = True
@@ -30,6 +29,8 @@ minecraft_process = subprocess.Popen(
     text=True,
     bufsize=1
 )
+
+online_users = []
 
 # Thread to read Minecraft server console output and send messages to Discord.
 def read_minecraft_output():
@@ -73,9 +74,11 @@ def read_minecraft_output():
 
                 elif mc_join:
                     bot.loop.create_task(channel.send(f"**{mc_join.group(1)}** joined the server!"))
+                    online_users.append(mc_join.group(1))
 
                 elif mc_leave:
                     bot.loop.create_task(channel.send(f"**{mc_leave.group(1)}** left the server!"))
+                    online_users.remove(mc_leave.group(1))
 
                 elif mc_advancement:
                     bot.loop.create_task(channel.send(f"**{mc_advancement.group(1)}** just got the achievement **{mc_advancement.group(2)}**!"))
@@ -136,6 +139,25 @@ async def execute_mc_command(ctx, *, command: str):
         await ctx.send(f"Command executed: `{command}`")
     else:
         await ctx.send("This command can only be used in a designated command channel.")
+
+
+@bot.command(name="online")
+async def execute_mc_command(ctx):
+    """
+    Command to see who is currently online.
+    Usage: !online
+    """
+    if ctx.channel.id == CHANNEL_ID:
+        if len(online_users) > 0:
+            message_buffer = "Users online:"
+            for i, user in enumerate(online_users):
+                message_buffer += f"\n{i}. `{user}`"
+            await ctx.send(message_buffer)
+        else:
+            await ctx.send("No users are currently online :(")
+    else:
+        await ctx.send("This command can only be used in the chat channel.")
+
 
 
 # Handle messages sent in the target Discord channels.
