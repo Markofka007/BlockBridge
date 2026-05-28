@@ -98,5 +98,3 @@ Warning-level log lines and `"Can't keep up"` overload messages are automaticall
 
 ## Command Logging
 When a player runs a command in-game, the result is forwarded to the admin channel. For example: `` `Notch` ran a command which: `Set own game mode to Creative Mode` ``. Requires `ADMIN_CHANNEL_ID` to be set.
-
-> **Note:** This matches the `[username: feedback]` log format used by vanilla Minecraft (and Fabric, Paper, Spigot which all build on it). You can enable this logging on your server with `/gamerule logAdminCommands true`.
