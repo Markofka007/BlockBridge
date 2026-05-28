@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ENABLE_COMMAND_EXECUTION = os.getenv("ENABLE_COMMAND_EXECUTION", "true").lower() == "true"
+ENABLE_COMMAND_LOGGING = os.getenv("ENABLE_COMMAND_LOGGING", "true").lower() == "true"
 ENABLE_WHITELIST = os.getenv("ENABLE_WHITELIST", "true").lower() == "true"
 ENABLE_SEED = os.getenv("ENABLE_SEED", "false").lower() == "true"
 
@@ -30,17 +31,20 @@ ADMIN_CHANNEL_ID = int(_admin_channel_id) if _admin_channel_id else None
 if ENABLE_WHITELIST:
     WHITELIST_CHANNEL_ID = int(os.getenv("WHITELIST_CHANNEL_ID"))
 
-# Death message keywords used to detect and forward player deaths.
-# Since this is pattern-based it may have false positive. I might fix this if I feel like it.
-DEATH_KEYWORDS = (
-    "was slain", "was shot", "was killed", "was blown up", "was pummeled",
-    "was fireballed", "was squished", "was skewered", "was stung", "was doomed",
-    "was struck by lightning", "was obliterated", "was impaled",
-    "drowned", "blew up", "burned to death", "went up in flames",
-    "fell from", "fell off", "fell out of the world", "hit the ground too hard",
-    "tried to swim in lava", "suffocated", "starved to death",
-    "walked into a cactus", "experienced kinetic energy", "froze to death",
-    "was pricked to death", "died",
+# Matches player death messages by requiring a valid username (word chars, 1-16)
+# followed immediately by a death verb. Entity deaths always have a descriptor
+# like EntityClass['Name'/ID, ...] between the class name and "died", so they
+# won't match this pattern.
+DEATH_PATTERN = re.compile(
+    r"\[Server thread/INFO\]: (\w{1,16}) "
+    r"(was slain|was shot|was killed|was blown up|was pummeled|"
+    r"was fireballed|was squished|was skewered|was stung|was doomed|"
+    r"was struck by lightning|was obliterated|was impaled|"
+    r"drowned|blew up|burned to death|went up in flames|"
+    r"fell from|fell off|fell out of the world|hit the ground too hard|"
+    r"tried to swim in lava|suffocated|starved to death|"
+    r"walked into a cactus|experienced kinetic energy|froze to death|"
+    r"was pricked to death|died)"
 )
 
 intents = discord.Intents.default()
@@ -128,6 +132,13 @@ def tail_log():
             bot.loop.create_task(admin_channel.send(f"```{line.strip()}```"))
             continue
 
+        # In-game command usage. Vanilla Minecraft logs command results as [username: command feedback]
+        if ENABLE_COMMAND_LOGGING:
+            mc_cmd = re.search(r"\[.+\] \[Server thread/INFO\]: \[(\w{1,16}): (.+)\]$", line)
+            if mc_cmd and admin_channel:
+                bot.loop.create_task(admin_channel.send(f"`{mc_cmd.group(1)}` ran a command which: `{mc_cmd.group(2)}`"))
+                continue
+
         if "[Server thread/INFO]" not in line:
             continue
 
@@ -164,8 +175,9 @@ def tail_log():
         elif mc_challenge and channel:
             bot.loop.create_task(channel.send(f"**{mc_challenge.group(1)}** just completed the challenge **{mc_challenge.group(2)}**!"))
 
-        # Death messages — checked last to avoid false positives from other patterns
-        elif channel and any(kw in line for kw in DEATH_KEYWORDS):
+        # Death messages. Pattern requires a bare username before the death verb,
+        # which excludes entity deaths (they have a descriptor with [ before "died")
+        elif channel and DEATH_PATTERN.search(line):
             mc_death = re.search(r"\[Server thread/INFO\]: (.+)$", line)
             if mc_death:
                 bot.loop.create_task(channel.send(f"**{mc_death.group(1)}**"))

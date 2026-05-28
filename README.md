@@ -6,6 +6,7 @@ Current features include:
 - Player death announcements
 - Player advancement and challenge announcements
 - Server start/stop announcements
+- In-game command logging to admin channel
 - Log-based alerts for warnings and performance issues
 - Command to check server status
 - Command to see who's online
@@ -49,6 +50,7 @@ rcon.port=25575
 
 4. Toggle optional features in `.env`:
     - `ENABLE_COMMAND_EXECUTION` - enables the `!mc` command. Set to `false` to disable.
+    - `ENABLE_COMMAND_LOGGING` - forwards in-game command results to the admin channel. Set to `false` to disable. Requires `ADMIN_CHANNEL_ID`.
     - `ENABLE_WHITELIST` - enables the `!whitelist` command. Set to `false` to disable. If `true`, also set `WHITELIST_CHANNEL_ID`.
     - `ENABLE_SEED` - enables the `!seed` command. Defaults to `false` since it exposes the world seed.
 
@@ -93,3 +95,8 @@ Example:
 
 ## Log Alerts
 Warning-level log lines and `"Can't keep up"` overload messages are automatically forwarded to the admin channel as they appear. Requires `ADMIN_CHANNEL_ID` to be set.
+
+## Command Logging
+When a player runs a command in-game, the result is forwarded to the admin channel. For example: `` `Notch` ran a command which: `Set own game mode to Creative Mode` ``. Requires `ADMIN_CHANNEL_ID` to be set.
+
+> **Note:** This matches the `[username: feedback]` log format used by vanilla Minecraft (and Fabric, Paper, Spigot which all build on it). You can enable this logging on your server with `/gamerule logAdminCommands true`.
