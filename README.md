@@ -51,6 +51,7 @@ rcon.port=25575
 4. Toggle optional features in `.env`:
     - `ENABLE_COMMAND_EXECUTION` - enables the `!mc` command. Set to `false` to disable.
     - `ENABLE_COMMAND_LOGGING` - forwards in-game command results to the admin channel. Set to `false` to disable. Requires `ADMIN_CHANNEL_ID`.
+    - `ENABLE_LOG_ALERTS` - forwards WARN-level lines and `"Can't keep up"` messages to the admin channel. Set to `false` to disable. Requires `ADMIN_CHANNEL_ID`.
     - `ENABLE_WHITELIST` - enables the `!whitelist` command. Set to `false` to disable. If `true`, also set `WHITELIST_CHANNEL_ID`.
     - `ENABLE_SEED` - enables the `!seed` command. Defaults to `false` since it exposes the world seed.
 

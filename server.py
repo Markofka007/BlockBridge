@@ -15,6 +15,7 @@ load_dotenv()
 
 ENABLE_COMMAND_EXECUTION = os.getenv("ENABLE_COMMAND_EXECUTION", "true").lower() == "true"
 ENABLE_COMMAND_LOGGING = os.getenv("ENABLE_COMMAND_LOGGING", "true").lower() == "true"
+ENABLE_LOG_ALERTS = os.getenv("ENABLE_LOG_ALERTS", "true").lower() == "true"
 ENABLE_WHITELIST = os.getenv("ENABLE_WHITELIST", "true").lower() == "true"
 ENABLE_SEED = os.getenv("ENABLE_SEED", "false").lower() == "true"
 
@@ -128,7 +129,7 @@ def tail_log():
                 continue
 
         # Log alerts — WARN level lines and "Can't keep up" overload warnings
-        if admin_channel and ("/WARN]" in line or "Can't keep up" in line):
+        if ENABLE_LOG_ALERTS and admin_channel and ("/WARN]" in line or "Can't keep up" in line):
             bot.loop.create_task(admin_channel.send(f"```{line.strip()}```"))
             continue
 
